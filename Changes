@@ -1,0 +1,8 @@
+Revision history for Mojo-AI-Client
+
+0.01    2026-05-08
+        - Initial release
+        - Moo-based xAI client
+        - Streaming support
+        - Intelligent caching
+        - Mojolicious integration
