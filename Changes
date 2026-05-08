@@ -1,8 +1,6 @@
-Revision history for Mojo-AI-Client
+0.02 2025-05-08
+    - Added comprehensive POD documentation
+    - Updated version to 0.02
 
-0.01    2026-05-08
-        - Initial release
-        - Moo-based xAI client
-        - Streaming support
-        - Intelligent caching
-        - Mojolicious integration
+0.01 2025-05-08
+    - Initial release
