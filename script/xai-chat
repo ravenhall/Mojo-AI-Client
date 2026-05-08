@@ -1,0 +1,48 @@
+#!/usr/bin/env perl
+use Mojolicious::Lite -signatures;
+use lib 'lib';
+use Mojo::AI::Client;
+use Dotenv;
+
+Dotenv->load;
+
+# ====================== CLIENT SETUP ======================
+helper xai => sub ($c) {
+    state $client = Mojo::AI::Client->new(
+        api_key       => $ENV{XAI_API_KEY} || die "XAI_API_KEY is required",
+        default_model => 'grok-4.3',
+    );
+    return $client;
+};
+
+# ====================== ROUTES ======================
+get '/' => sub ($c) { $c->render(template => 'chat') };
+
+post '/api/chat' => sub ($c) {
+    my $input   = $c->req->json;
+    my $message = $input->{message};
+    my $history = $input->{history} // [];
+    my $model   = $input->{model}   // 'grok-4.3';
+
+    push @$history, { role => 'user', content => $message };
+
+    $c->render_later;
+
+    $c->xai->stream(
+        undef,
+        sub ($chunk, $data) {
+            if (defined $chunk) {
+                $c->write("data: " . Mojo::JSON::encode_json({ chunk => $chunk }) . "\n\n");
+            }
+        },
+        messages => $history,
+        model    => $model,
+    );
+
+    Mojo::IOLoop->timer(0.3 => sub {
+        $c->write("data: [DONE]\n\n");
+        $c->finish;
+    });
+};
+
+app->start;
